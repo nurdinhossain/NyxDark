@@ -49,4 +49,4 @@ Eval Function:
 
 An optimization algorithm known as **particle swarm optimization (PSO)** was used to tune the parameters of this eval function due to its simple implementation and ability to tweak many parameters at once.
 
-To run the engine, simply run the **3.exe** executable file.
+To run the engine, simply run the **3.exe** executable file. Make sure the file "best_parameters.txt" remains in the same directory as the executable, as the engine requires these parameters for the eval function.
