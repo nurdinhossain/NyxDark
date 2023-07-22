@@ -5,23 +5,9 @@
 #include "book.h"
 #include <iostream>
 #include <sstream>
-#include <thread>
-
-// method for splitting a string
-vector<string> split(const string& s, char delimiter)
-{
-    vector<string> tokens;
-    string token;
-    istringstream tokenStream(s);
-    while (getline(tokenStream, token, delimiter))
-    {
-        tokens.push_back(token);
-    }
-    return tokens;
-}
 
 // method for uci protocol
-void uci()
+void uci(unordered_map<string, vector<string>> book)
 {
     Board* board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     AI* master = new AI();
@@ -179,6 +165,18 @@ void uci()
         }
         else if (input.substr(0, 2) == "go")
         {
+            // look for book move
+            if (book.find(board->getFen()) != book.end())
+            {
+                vector<string> moves = book[board->getFen()];
+                int index = rand() % moves.size();
+                string move = moves[index];
+                string from = move.substr(0, 2);
+                string to = move.substr(2, 2);
+                std::cout << "bestmove " << from << to << endl;
+                continue;
+            }
+
             // parse arguments for wtime, btime, winc, binc, movestogo, movetime, and infinite
             int wtime = -1;
             int btime = -1;

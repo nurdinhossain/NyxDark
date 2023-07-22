@@ -114,19 +114,3 @@ void TranspositionTable::store(UInt64 key, Flag flag, int depth, int ply, int sc
     entry->score = correctScoreStore(score, ply);
     entry->move = move;
 }
-
-// other
-void TranspositionTable::display()
-{
-    // print the table
-    for (int i = 0; i < size_; i++)
-    {
-        std::cout << "Entry " << i << ": " << std::endl;
-        std::cout << "Key: " << table_[i].key << std::endl;
-        std::cout << "Flag: " << table_[i].flag << std::endl;
-        std::cout << "Depth: " << table_[i].depth << std::endl;
-        std::cout << "Score: " << table_[i].score << std::endl;
-        std::cout << "Move: " << indexToSquare(table_[i].move.from) << indexToSquare(table_[i].move.to) << std::endl;
-        std::cout << std::endl;
-    }
-}

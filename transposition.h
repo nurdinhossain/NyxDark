@@ -2,7 +2,7 @@
 #include "game.h"
 
 // constants
-const int TT_SIZE = 16; // in MB
+const int TT_SIZE = 32; // in MB
 
 // enum for flags
 enum Flag
@@ -40,9 +40,6 @@ class TranspositionTable
         // store/access
         void store(UInt64 key, Flag flag, int depth, int ply, int score, Move move);
         Entry* probe(UInt64 key);
-
-        // other
-        void display();
     private:
         // variables
         int size_;

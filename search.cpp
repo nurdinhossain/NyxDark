@@ -7,6 +7,7 @@
 #include "moveorder.h"
 #include "searchboost.h"
 #include "evalparams.h"
+#include <thread>
 
 int MAX_TIME;
 
@@ -650,8 +651,7 @@ bool isRepetition(Board& board)
 {
     int count = 0;
 
-    // look back 8 moves at most
-    for (int i = board.getHistoryIndex(); i > std::max(board.getHistoryIndex() - 8, 0); i--)
+    for (int i = 0; i < board.getHistoryIndex(); i++)
     {
         if (board.getHistoryHash(i) == board.getCurrentHash())
         {
@@ -659,6 +659,6 @@ bool isRepetition(Board& board)
         }
     }
 
-    return count > 1;
+    return count > 2;
 }
 

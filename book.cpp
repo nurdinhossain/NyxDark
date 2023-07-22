@@ -2,14 +2,28 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-using namespace std;
+#include <sstream>
+
+// method for splitting a string
+vector<string> split(const string& s, char delimiter)
+{
+    vector<string> tokens;
+    string token;
+    istringstream tokenStream(s);
+    while (getline(tokenStream, token, delimiter))
+    {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
 
 // method to read and preprocess a PGN file into separate games (represented by a vector of strings)
-std::vector<std::vector<std::string>> processPGN(std::string filename, int limit)
+vector<vector<string>> processPGN(string filename, int limit)
 {
     // initialize vector of games
-    std::vector<std::vector<std::string>> games;
-    std::vector<std::string> currentGame;
+    vector<vector<string>> games;
+    vector<string> currentGame;
     int gameCount = 0;
 
     // open the file
@@ -20,7 +34,7 @@ std::vector<std::vector<std::string>> processPGN(std::string filename, int limit
     while (getline(file, line))
     {
         // remove all carriage returns
-        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+        line.erase(remove(line.begin(), line.end(), '\r'), line.end());
 
         // if line contains a square bracket, forget it
         if (line.find('[') != string::npos)
@@ -130,29 +144,29 @@ int ambiguousMove(Board& board, Move moves[], int moveCount, Piece piece, int sq
 }
 
 // method to convert game result ("1-0", "0-1", "1/2-1/2") into a number (1, 0, 0.5)
-std::string processResult(std::string result)
+string processResult(string result)
 {
     if (result == "1-0") return "1";
     else if (result == "0-1") return "0";
     else if (result == "1/2-1/2") return "0.5";
     
     // if we get here, throw an error
-    throw std::invalid_argument("Invalid result");
+    throw invalid_argument("Invalid result");
 
     return "";
 }
 
 // method to convert a vector of strings (game) into fen strings
-std::vector<std::string> processGame(std::vector<std::string> game, std::string startFen)
+vector<string> processGame(vector<string> game, string startFen)
 {
     // initialize board
     Board board = Board(startFen);
 
     // initialize vector of fen strings
-    std::vector<std::string> fenStrings;
+    vector<string> fenStrings;
 
     // get result of game from last element of game vector
-    std::string result = game[game.size() - 1];
+    string result = game[game.size() - 1];
     game.pop_back();
 
     // add initial fen
@@ -172,13 +186,13 @@ std::vector<std::string> processGame(std::vector<std::string> game, std::string 
         int moveCount = 0;
         board.generateMoves(realMoves, moveCount);
 
-        std::string algebraicMove = game[i];
+        string algebraicMove = game[i];
 
         // remove unnecessary characters like +, #, !, ?, etc.
-        algebraicMove.erase(std::remove(algebraicMove.begin(), algebraicMove.end(), '+'), algebraicMove.end());
-        algebraicMove.erase(std::remove(algebraicMove.begin(), algebraicMove.end(), '#'), algebraicMove.end());
-        algebraicMove.erase(std::remove(algebraicMove.begin(), algebraicMove.end(), '!'), algebraicMove.end());
-        algebraicMove.erase(std::remove(algebraicMove.begin(), algebraicMove.end(), '?'), algebraicMove.end());
+        algebraicMove.erase(remove(algebraicMove.begin(), algebraicMove.end(), '+'), algebraicMove.end());
+        algebraicMove.erase(remove(algebraicMove.begin(), algebraicMove.end(), '#'), algebraicMove.end());
+        algebraicMove.erase(remove(algebraicMove.begin(), algebraicMove.end(), '!'), algebraicMove.end());
+        algebraicMove.erase(remove(algebraicMove.begin(), algebraicMove.end(), '?'), algebraicMove.end());
 
         // loop through generated moves
         bool found = false;
@@ -191,7 +205,7 @@ std::vector<std::string> processGame(std::vector<std::string> game, std::string 
             Piece pieceMoved = extractPiece(board.getSquareToPiece(from));
 
             // try to recreate the algebraic move
-            std::string recreatedMove = "";
+            string recreatedMove = "";
 
             // pawn move
             if (pieceMoved == PAWN)
@@ -263,8 +277,8 @@ std::vector<std::string> processGame(std::vector<std::string> game, std::string 
         // if move was not found, throw error
         if (!found)
         {
-            std::cout << "Move not found: " << algebraicMove << std::endl;
-            throw std::exception();
+            cout << "Move not found: " << algebraicMove << endl;
+            throw exception();
         }
     }
 
@@ -272,17 +286,18 @@ std::vector<std::string> processGame(std::vector<std::string> game, std::string 
     return fenStrings;
 }
 
-// method just to process PGN moves
-std::vector<std::string> processPGN(std::vector<std::string> game, std::string startFen)
+// method to convert a vector of strings (game) into a vector of fen strings with the move played per position
+vector<string> processGameWithMoves(vector<string> game, string startFen, int limit)
 {
     // initialize board
     Board board = Board(startFen);
 
     // initialize vector of fen strings
-    std::vector<std::string> fenStrings;
+    vector<string> fenStrings;
 
-    // add initial fen
-    fenStrings.push_back(startFen);
+    // get result of game from last element of game vector
+    string result = game[game.size() - 1];
+    game.pop_back();
 
     // some lookup tables
     char pieceLookup[6] = { 'P', 'N', 'B', 'R', 'Q', 'K' };
@@ -291,20 +306,21 @@ std::vector<std::string> processPGN(std::vector<std::string> game, std::string s
 
     // loop through moves
     Move realMoves[256];
-    for (int i = 0; i < game.size(); i++)
+    int end = min((int)game.size(), limit);
+    for (int i = 0; i < end; i++)
     {
         // move generation
         board.moveGenerationSetup();
         int moveCount = 0;
         board.generateMoves(realMoves, moveCount);
 
-        std::string algebraicMove = game[i];
+        string algebraicMove = game[i];
 
         // remove unnecessary characters like +, #, !, ?, etc.
-        algebraicMove.erase(std::remove(algebraicMove.begin(), algebraicMove.end(), '+'), algebraicMove.end());
-        algebraicMove.erase(std::remove(algebraicMove.begin(), algebraicMove.end(), '#'), algebraicMove.end());
-        algebraicMove.erase(std::remove(algebraicMove.begin(), algebraicMove.end(), '!'), algebraicMove.end());
-        algebraicMove.erase(std::remove(algebraicMove.begin(), algebraicMove.end(), '?'), algebraicMove.end());
+        algebraicMove.erase(remove(algebraicMove.begin(), algebraicMove.end(), '+'), algebraicMove.end());
+        algebraicMove.erase(remove(algebraicMove.begin(), algebraicMove.end(), '#'), algebraicMove.end());
+        algebraicMove.erase(remove(algebraicMove.begin(), algebraicMove.end(), '!'), algebraicMove.end());
+        algebraicMove.erase(remove(algebraicMove.begin(), algebraicMove.end(), '?'), algebraicMove.end());
 
         // loop through generated moves
         bool found = false;
@@ -317,7 +333,7 @@ std::vector<std::string> processPGN(std::vector<std::string> game, std::string s
             Piece pieceMoved = extractPiece(board.getSquareToPiece(from));
 
             // try to recreate the algebraic move
-            std::string recreatedMove = "";
+            string recreatedMove = "";
 
             // pawn move
             if (pieceMoved == PAWN)
@@ -374,11 +390,12 @@ std::vector<std::string> processPGN(std::vector<std::string> game, std::string s
             // compare recreated move to algebraic move
             if (recreatedMove == algebraicMove)
             {
+                // get square notation of move
+                string squareNotation = indexToSquare(from) + indexToSquare(to);
+                fenStrings.push_back(board.getFen() + "," + squareNotation);
+
                 // make move
                 board.makeMove(move);
-
-                // add fen string to vector
-                fenStrings.push_back(board.getFen());
 
                 // set found to true
                 found = true;
@@ -389,11 +406,37 @@ std::vector<std::string> processPGN(std::vector<std::string> game, std::string s
         // if move was not found, throw error
         if (!found)
         {
-            std::cout << "Move not found: " << algebraicMove << std::endl;
-            throw std::exception();
+            cout << "Move not found: " << algebraicMove << endl;
+            throw exception();
         }
     }
 
     // return fen strings
     return fenStrings;
+}
+
+// given a vector of fen+move, convert it into an unordered map of fen to all moves played from that position
+unordered_map<string, vector<string>> fenMovesToMap(vector<string> fenMoves)
+{
+    // initialize unordered map
+    unordered_map<string, vector<string>> fenMap;
+
+    // loop through fenMoves
+    for (string fenMove : fenMoves)
+    {
+        // split fenMove by comma
+        vector<string> fenMoveSplit = split(fenMove, ',');
+
+        // add fen to map if it doesn't exist
+        if (fenMap.find(fenMoveSplit[0]) == fenMap.end())
+        {
+            fenMap[fenMoveSplit[0]] = vector<string>();
+        }
+
+        // add move to fen
+        fenMap[fenMoveSplit[0]].push_back(fenMoveSplit[1]);
+    }
+
+    // return fenMap
+    return fenMap;
 }

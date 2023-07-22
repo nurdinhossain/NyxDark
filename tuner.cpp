@@ -248,7 +248,7 @@ void pso(string filename, float k, int num_particles, double inertia, double cog
             intPosition.push_back(round(global_best_position[j]));
         }
 
-        saveParameters("best_parameters2.txt", intPosition);
+        saveParameters("best_parameters.txt", intPosition);
     }
 }
 
