@@ -1144,7 +1144,7 @@ void Board::makeMove(Move &move)
     history[historyIndex++] = currentHash;
 
     // if move is a pawn move or capture, reset history index
-    if (type >= MoveType::CAPTURE || extractPiece(squareToPiece[to] == Piece::PAWN)) historyIndex = 0;
+    if (type >= MoveType::CAPTURE || extractPiece(squareToPiece[to]) == Piece::PAWN) historyIndex = 0;
 }
 
 void Board::unmakeMove(Move &move)
