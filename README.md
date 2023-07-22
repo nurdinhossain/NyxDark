@@ -23,6 +23,8 @@ Move Ordering Techniques:
 - Killer Moves
 - History Heuristic
 
+The above techniques were chosen at the recommendation of the Chess Programming Wiki - https://www.chessprogramming.org/
+
 Eval Function:
 - Piece-Square Tables
 - Material
@@ -47,6 +49,6 @@ Eval Function:
   - Pair
   - Mobility
 
-An optimization algorithm known as **particle swarm optimization (PSO)** was used to tune the parameters of this eval function due to its simple implementation and ability to tweak many parameters at once.
+An optimization algorithm known as **particle swarm optimization (PSO)** was used to tune the parameters of this eval function due to its simple implementation and ability to tweak many parameters at once. The parameters were "trained" on publicly-available engine games online in hopes of achieving similar strength and consistency. The engine has not yet been gauntlet-tested against other engines to estimate its ELO, so that would be a reasonable next step to truly assess its playing strength. 
 
 To run the engine, simply run the **3.exe** executable file. Make sure the file "best_parameters.txt" remains in the same directory as the executable, as the engine requires these parameters for the eval function.
