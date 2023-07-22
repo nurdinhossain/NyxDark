@@ -27,22 +27,22 @@ Eval Function:
 - Piece-Square Tables
 - Material
 - King Safety
--   Pawn Shield/Storm
--   Enemy Attack Units
--   King Obstructing Rook 
+  - Pawn Shield/Storm
+  - Enemy Attack Units
+  - King Obstructing Rook 
 - Pawn Structure (hashed)
--   Passed Pawns
--   Unstoppable Passed Pawns
--   Candidate Passed Pawns
--   Backward Pawns
--   Isolated Pawns
--   Obstructed Pawns
+  - Passed Pawns
+  - Unstoppable Passed Pawns
+  - Candidate Passed Pawns
+  - Backward Pawns
+  - Isolated Pawns
+  - Obstructed Pawns
 - Rook
--   Open File
--   Horizontal/Vertical Mobility
+  - Open File
+  - Horizontal/Vertical Mobility
 - Knight
--   Outpost (on/off hole in enemy pawn structure)
--   Mobility
+  - Outpost (on/off hole in enemy pawn structure)
+  - Mobility
 - Bishop
   - Pair
   - Mobility
