@@ -45,7 +45,7 @@ Eval Function:
 -   Mobility
 - Bishop
 -   Pair
--   Mobility
+--   Mobility
 
 An optimization algorithm known as **particle swarm optimization (PSO)** was used to tune the parameters of this eval function due to its simple implementation and ability to tweak many parameters at once.
 
