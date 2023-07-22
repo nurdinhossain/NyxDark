@@ -6,6 +6,12 @@
 #include <iostream>
 #include <sstream>
 
+// method for calculating time
+int getTime(int timeLeft, int inc, int moveNumber)
+{
+    return timeLeft / max(20, 45 - moveNumber) + inc;
+}
+
 // method for uci protocol
 void uci(unordered_map<string, vector<string>> book)
 {
@@ -13,6 +19,7 @@ void uci(unordered_map<string, vector<string>> book)
     AI* master = new AI();
     TranspositionTable* tt = new TranspositionTable(TT_SIZE);
     bool DEBUG = false;
+    int moveNumber = 0;
 
     string input;
     while (true)
@@ -35,10 +42,14 @@ void uci(unordered_map<string, vector<string>> book)
             if (master != NULL)
                 delete master;
             master = new AI();
+
+            // reset move number
+            moveNumber = 0;
         }
         else if (input.substr(0, 8) == "position")
         {
             // position startpos moves e2e4 e7e5 b7b8q
+            moveNumber = 0;
             string fen = "";
             int movesIndex = input.find("moves");
             if (input.substr(9, 8) == "startpos")
@@ -76,6 +87,9 @@ void uci(unordered_map<string, vector<string>> book)
                 // loop through moves
                 for (string move : moveList)
                 {
+                    // increment move number
+                    moveNumber++;
+
                     // split 4 char move into 2 char from and to
                     string from = move.substr(0, 2);
                     string to = move.substr(2, 2);
@@ -205,10 +219,38 @@ void uci(unordered_map<string, vector<string>> book)
             }
 
             // set max time
-            MAX_TIME = 3000;
+            if (board->getNextMove() == WHITE)
+            {
+                if (wtime != -1)
+                    MAX_TIME = getTime(wtime, winc, moveNumber);
+                else if (btime != -1)
+                    MAX_TIME = getTime(btime, binc, moveNumber);
+                else if (movetime != -1)
+                    MAX_TIME = movetime;
+                else if (infinite)
+                    MAX_TIME = 1000000000;
+            }
+            else
+            {
+                if (btime != -1)
+                    MAX_TIME = getTime(btime, binc, moveNumber);
+                else if (wtime != -1)
+                    MAX_TIME = getTime(wtime, winc, moveNumber);
+                else if (movetime != -1)
+                    MAX_TIME = movetime;
+                else if (infinite)
+                    MAX_TIME = 1000000000;
+            }
 
             Move bestMove = master->getBestMove(*board, tt, true);
-            std::cout << "bestmove " << indexToSquare(bestMove.from) << indexToSquare(bestMove.to) << endl;
+
+            // print best move in uci format
+            std::string stringMove = indexToSquare(bestMove.from) + indexToSquare(bestMove.to);
+            if (bestMove.type == KNIGHT_PROMOTION || bestMove.type == KNIGHT_PROMOTION_CAPTURE) stringMove += "n";
+            else if (bestMove.type == BISHOP_PROMOTION || bestMove.type == BISHOP_PROMOTION_CAPTURE) stringMove += "b";
+            else if (bestMove.type == ROOK_PROMOTION || bestMove.type == ROOK_PROMOTION_CAPTURE) stringMove += "r";
+            else if (bestMove.type == QUEEN_PROMOTION || bestMove.type == QUEEN_PROMOTION_CAPTURE) stringMove += "q";
+            std::cout << "bestmove " << stringMove << std::endl;
         }
     };
 

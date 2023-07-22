@@ -549,7 +549,6 @@ Move AI::getBestMove(Board& board, TranspositionTable* transpositionTable_, bool
     int depth = 1;
     int alpha = NEG_INF, beta = POS_INF;
     int windowAlpha = 0, windowBeta = 0;
-    int pvChanges = 0;
     bool abort = false;
 
     // age history table
@@ -593,10 +592,6 @@ Move AI::getBestMove(Board& board, TranspositionTable* transpositionTable_, bool
 
             // update best move and score if the call was not broken prematurely and reset alpha and beta
             Move bestMoveCurrentIteration_ = transpositionTable_->probe(board.getCurrentHash())->move;
-            if (bestMoveCurrentIteration_.from != bestMove.from || bestMoveCurrentIteration_.to != bestMove.to || bestMoveCurrentIteration_.type != bestMove.type)
-            {
-                pvChanges++;
-            }
 
             bestMove = bestMoveCurrentIteration_;
             bestScore = eval;
@@ -621,13 +616,6 @@ Move AI::getBestMove(Board& board, TranspositionTable* transpositionTable_, bool
             std::cout << " score cp " << bestScore;
             std::cout << " nps " << (int)(searchStats_.nodes / elapsed.count()) * 1000;
             std::cout << std::endl;
-
-            // adjust time depending on pv changes  
-            if (pvChanges > 1)
-            {
-                MAX_TIME += TIME_INCREASE;
-                pvChanges = 0;
-            }
         }
 
         // check for mate

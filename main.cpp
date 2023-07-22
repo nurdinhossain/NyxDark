@@ -32,7 +32,7 @@ int main()
 	// load book
 
 	// process pgn file
-	vector<vector<string>> games = processPGN("book_games.pgn", 8000);
+	vector<vector<string>> games = processPGN("book_games.pgn", 5000);
 
 	// process games into fen strings and put into one large vector
 	vector<string> bookFens;
@@ -40,7 +40,7 @@ int main()
 	{
 		vector<string> game = games[i];
 		string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-		vector<string> fens = processGameWithMoves(game, startFen, 12);
+		vector<string> fens = processGameWithMoves(game, startFen, 10);
 		bookFens.insert(bookFens.end(), fens.begin(), fens.end());
 	}
 

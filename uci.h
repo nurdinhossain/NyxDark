@@ -10,7 +10,7 @@ const string ENGINE_NAME = "NYX";
 const string ENGINE_AUTHOR = "Nurdin Hossain";
 
 // method for calculating time
-int getTime(int timeLeft, int inc, int movesToGo, int historyIndex);
+int getTime(int timeLeft, int inc, int moveNumber);
 
 // method for uci protocol
 void uci(unordered_map<string, vector<string>> book);
