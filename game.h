@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <string>
+#include <unordered_map>
 using UInt64 = unsigned long long;
 
 enum Color
@@ -84,7 +85,6 @@ struct Move
     Piece pieceTaken;
     int oldCastle;
     Square oldEnPassant;
-    int oldHistoryIndex;
     int score;
 };
 
@@ -121,8 +121,7 @@ class Board
         Square getEnPassant() const;
         UInt64 getCurrentHash() const;
         UInt64 getPawnHash() const;
-        int getHistoryIndex() const;
-        UInt64 getHistoryHash(int index) const;
+        int getHashCount(UInt64 index);
         int getPieceCount(Color color, Piece piece) const;
         int getMaterial(Color color) const;
         int getStaticEvalOpening() const;
@@ -184,8 +183,7 @@ class Board
         // hashing
         UInt64 currentHash = 0; // current hash
         UInt64 pawnHash = 0; // hash for pawns
-        UInt64 history[1024] = {0}; // history for hashing
-        int historyIndex = 0; // index for history
+        std::unordered_map<UInt64, int> history = {}; // history of hashes
 
         // for generating legal moves
         Square kingIndices[2] = {NONE, NONE}; // 2 colors

@@ -166,7 +166,7 @@ Board::Board(std::string fen)
     zobristHash();
 
     // add to history
-    history[historyIndex++] = currentHash;
+    history[currentHash]++;
 }
 
 Board::~Board()
@@ -202,10 +202,12 @@ Board* Board::clone() const
     clone->castlingRights = castlingRights;
     clone->enPassant = enPassant;
     clone->currentHash = currentHash;
-    clone->historyIndex = historyIndex;
-    for (int i = 0; i < 64; i++) {
-        clone->history[i] = history[i];
+
+    // clone history
+    for (auto it = history.begin(); it != history.end(); it++) {
+        clone->history[it->first] = it->second;
     }
+
     clone->pinnedPiecesMG = pinnedPiecesMG;
     clone->checkers = checkers;
     clone->occMG = occMG;
@@ -416,11 +418,7 @@ UInt64 Board::getCurrentHash() const
     return currentHash;
 }
 
-int Board::getHistoryIndex() const
-{
-    return historyIndex;
-}
-UInt64 Board::getHistoryHash(int index) const
+int Board::getHashCount(UInt64 index)
 {
     return history[index];
 }
@@ -782,28 +780,28 @@ void Board::generateMoves(Move moves[], int& moveCount, bool attackOnly, bool qu
                     // PROMOTION
                     if (flag == MoveType::CAPTURE)
                     {
-                        moves[moveCount++] = { MoveType::KNIGHT_PROMOTION_CAPTURE, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
-                        moves[moveCount++] = { MoveType::BISHOP_PROMOTION_CAPTURE, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
-                        moves[moveCount++] = { MoveType::ROOK_PROMOTION_CAPTURE, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
-                        moves[moveCount++] = { MoveType::QUEEN_PROMOTION_CAPTURE, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
+                        moves[moveCount++] = { MoveType::KNIGHT_PROMOTION_CAPTURE, index, to, capturedPiece, castlingRights, enPassant };
+                        moves[moveCount++] = { MoveType::BISHOP_PROMOTION_CAPTURE, index, to, capturedPiece, castlingRights, enPassant };
+                        moves[moveCount++] = { MoveType::ROOK_PROMOTION_CAPTURE, index, to, capturedPiece, castlingRights, enPassant };
+                        moves[moveCount++] = { MoveType::QUEEN_PROMOTION_CAPTURE, index, to, capturedPiece, castlingRights, enPassant };
                     }
                     else
                     {
-                        moves[moveCount++] = { MoveType::KNIGHT_PROMOTION, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
-                        moves[moveCount++] = { MoveType::BISHOP_PROMOTION, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
-                        moves[moveCount++] = { MoveType::ROOK_PROMOTION, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
-                        moves[moveCount++] = { MoveType::QUEEN_PROMOTION, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
+                        moves[moveCount++] = { MoveType::KNIGHT_PROMOTION, index, to, capturedPiece, castlingRights, enPassant };
+                        moves[moveCount++] = { MoveType::BISHOP_PROMOTION, index, to, capturedPiece, castlingRights, enPassant };
+                        moves[moveCount++] = { MoveType::ROOK_PROMOTION, index, to, capturedPiece, castlingRights, enPassant };
+                        moves[moveCount++] = { MoveType::QUEEN_PROMOTION, index, to, capturedPiece, castlingRights, enPassant };
                     }
                 }
-                else moves[moveCount++] = { flag, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
+                else moves[moveCount++] = { flag, index, to, capturedPiece, castlingRights, enPassant };
             }   
 
             // deal with king moves
             else if (piece == Piece::KING)
             {
-                if (isKingMoveLegal(index, to)) moves[moveCount++] = { flag, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
+                if (isKingMoveLegal(index, to)) moves[moveCount++] = { flag, index, to, capturedPiece, castlingRights, enPassant };
             }
-            else moves[moveCount++] = { flag, index, to, capturedPiece, castlingRights, enPassant, historyIndex };
+            else moves[moveCount++] = { flag, index, to, capturedPiece, castlingRights, enPassant };
 
             // remove the move from the move board
             moveBoard &= moveBoard - 1;
@@ -834,7 +832,7 @@ void Board::generateMoves(Move moves[], int& moveCount, bool attackOnly, bool qu
 
                     if (attackers == 0)
                     {
-                        moves[moveCount++] = { MoveType::KING_CASTLE, Square::e1, Square::g1, Piece::EMPTY, castlingRights, enPassant, historyIndex };
+                        moves[moveCount++] = { MoveType::KING_CASTLE, Square::e1, Square::g1, Piece::EMPTY, castlingRights, enPassant };
                     }
                 }
             }
@@ -855,7 +853,7 @@ void Board::generateMoves(Move moves[], int& moveCount, bool attackOnly, bool qu
 
                     if (attackers == 0)
                     {
-                        moves[moveCount++] = { MoveType::QUEEN_CASTLE, Square::e1, Square::c1, Piece::EMPTY, castlingRights, enPassant, historyIndex };
+                        moves[moveCount++] = { MoveType::QUEEN_CASTLE, Square::e1, Square::c1, Piece::EMPTY, castlingRights, enPassant };
                     }
                 }
             }
@@ -878,7 +876,7 @@ void Board::generateMoves(Move moves[], int& moveCount, bool attackOnly, bool qu
 
                     if (attackers == 0)
                     {
-                        moves[moveCount++] = { MoveType::KING_CASTLE, Square::e8, Square::g8, Piece::EMPTY, castlingRights, enPassant, historyIndex };
+                        moves[moveCount++] = { MoveType::KING_CASTLE, Square::e8, Square::g8, Piece::EMPTY, castlingRights, enPassant };
                     }
                 }
             }
@@ -899,7 +897,7 @@ void Board::generateMoves(Move moves[], int& moveCount, bool attackOnly, bool qu
 
                     if (attackers == 0)
                     {
-                        moves[moveCount++] = { MoveType::QUEEN_CASTLE, Square::e8, Square::c8, Piece::EMPTY, castlingRights, enPassant, historyIndex };
+                        moves[moveCount++] = { MoveType::QUEEN_CASTLE, Square::e8, Square::c8, Piece::EMPTY, castlingRights, enPassant };
                     }
                 }
             }
@@ -914,11 +912,11 @@ void Board::generateMoves(Move moves[], int& moveCount, bool attackOnly, bool qu
             Square potentialAttackerOne = static_cast<Square>(enPassant - 9), potentialAttackerTwo = static_cast<Square>(enPassant - 7);
             if ((potentialAttackerOne % 8 == enPassant % 8 - 1) && squareToPiece[potentialAttackerOne] == Piece::PAWN)
             {
-                if (isEPLegal(potentialAttackerOne, enPassant)) moves[moveCount++] = { MoveType::EN_PASSANT, potentialAttackerOne, enPassant, Piece::PAWN, castlingRights, enPassant, historyIndex };
+                if (isEPLegal(potentialAttackerOne, enPassant)) moves[moveCount++] = { MoveType::EN_PASSANT, potentialAttackerOne, enPassant, Piece::PAWN, castlingRights, enPassant };
             }
             if ((potentialAttackerTwo % 8 == enPassant % 8 + 1) && squareToPiece[potentialAttackerTwo] == Piece::PAWN)
             {
-                if (isEPLegal(potentialAttackerTwo, enPassant)) moves[moveCount++] = { MoveType::EN_PASSANT, potentialAttackerTwo, enPassant, Piece::PAWN, castlingRights, enPassant, historyIndex };
+                if (isEPLegal(potentialAttackerTwo, enPassant)) moves[moveCount++] = { MoveType::EN_PASSANT, potentialAttackerTwo, enPassant, Piece::PAWN, castlingRights, enPassant };
             }
         }
         else
@@ -926,11 +924,11 @@ void Board::generateMoves(Move moves[], int& moveCount, bool attackOnly, bool qu
             Square potentialAttackerOne = static_cast<Square>(enPassant + 7), potentialAttackerTwo = static_cast<Square>(enPassant + 9);
             if ((potentialAttackerOne % 8 == enPassant % 8 - 1) && extractPiece(squareToPiece[potentialAttackerOne]) == Piece::PAWN && extractColor(squareToPiece[potentialAttackerOne]) == Color::BLACK)
             {
-                if (isEPLegal(potentialAttackerOne, enPassant)) moves[moveCount++] = { MoveType::EN_PASSANT, potentialAttackerOne, enPassant, Piece::PAWN, castlingRights, enPassant, historyIndex };
+                if (isEPLegal(potentialAttackerOne, enPassant)) moves[moveCount++] = { MoveType::EN_PASSANT, potentialAttackerOne, enPassant, Piece::PAWN, castlingRights, enPassant };
             }
             if ((potentialAttackerTwo % 8 == enPassant % 8 + 1) && extractPiece(squareToPiece[potentialAttackerTwo]) == Piece::PAWN && extractColor(squareToPiece[potentialAttackerTwo]) == Color::BLACK)
             {
-                if (isEPLegal(potentialAttackerTwo, enPassant)) moves[moveCount++] = { MoveType::EN_PASSANT, potentialAttackerTwo, enPassant, Piece::PAWN, castlingRights, enPassant, historyIndex };
+                if (isEPLegal(potentialAttackerTwo, enPassant)) moves[moveCount++] = { MoveType::EN_PASSANT, potentialAttackerTwo, enPassant, Piece::PAWN, castlingRights, enPassant };
             }
         }
     }
@@ -1140,11 +1138,8 @@ void Board::makeMove(Move &move)
     if (enPassant != Square::NONE) currentHash ^= ZOBRIST_EN_PASSANT[enPassant % 8];
     currentHash ^= ZOBRIST_SIDE;
 
-    // update history hash
-    history[historyIndex++] = currentHash;
-
-    // if move is a pawn move or capture, reset history index
-    if (type >= MoveType::CAPTURE || extractPiece(squareToPiece[to]) == Piece::PAWN) historyIndex = 0;
+    // update history hash unordered map
+    history[currentHash]++;
 }
 
 void Board::unmakeMove(Move &move)
@@ -1156,8 +1151,11 @@ void Board::unmakeMove(Move &move)
     Piece pieceTaken = move.pieceTaken;
     int oldCastle = move.oldCastle;
     Square oldEP = move.oldEnPassant;
-    int oldHistoryIndex = move.oldHistoryIndex;
     Color color = static_cast<Color>(Color::BLACK - nextMove);
+
+    // if position is new, remove it from history, otherwise decrement the count
+    if (history[currentHash] == 1) history.erase(currentHash);
+    else history[currentHash]--;
     
     // undo old zobrists
     currentHash ^= ZOBRIST_CASTLE[castlingRights];
@@ -1219,7 +1217,6 @@ void Board::unmakeMove(Move &move)
     nextMove = color;
     castlingRights = oldCastle;
     enPassant = oldEP;
-    historyIndex = oldHistoryIndex;
 
     // update zobrist hash
     currentHash ^= ZOBRIST_CASTLE[castlingRights];

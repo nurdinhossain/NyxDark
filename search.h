@@ -83,6 +83,3 @@ class AI
         Move excludedMove_ = {QUIET, NONE, NONE};
         SearchStats searchStats_;
 };
-
-// is repetition method
-bool isRepetition(Board& board);

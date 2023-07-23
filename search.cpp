@@ -78,21 +78,10 @@ AI::~AI()
 // search
 int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth, int ply, int alpha, int beta, std::chrono::steady_clock::time_point start, bool& abort)
 {
-    // check for time
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = end - start;
-    if (elapsed.count() >= MAX_TIME)
+    // check for max depth
+    if (depth <= 0)
     {
-        abort = true;
-        return DRAW;
-    }
-
-    // mate distance pruning
-    alpha = std::max(alpha, -MATE + ply);
-    beta = std::min(beta, MATE - ply);
-    if (alpha >= beta)
-    {
-        return alpha;
+        return quiesce(board, alpha, beta);
     }
 
     // check if this is a pv node
@@ -101,28 +90,36 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
     // increment nodes
     searchStats_.nodes++;
 
-    // insufficient material
-    if (board.insufficientMaterial(WHITE) && board.insufficientMaterial(BLACK))
+    if (ply > 0)
     {
-        return DRAW;
-    }
+        // check for time
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = end - start;
+        if (elapsed.count() >= MAX_TIME)
+        {
+            abort = true;
+            return DRAW;
+        }
 
-    // check for threefold repetition
-    if (isRepetition(board))
-    {
-        return DRAW;
-    }
+        // insufficient material
+        if (board.insufficientMaterial(WHITE) && board.insufficientMaterial(BLACK))
+        {
+            return DRAW;
+        }
 
-    // check for fifty move rule
-    if (board.getHistoryIndex() >= 100)
-    {
-        return DRAW;
-    }  
+        // check for threefold repetition
+        if (board.getHashCount(board.getCurrentHash()) > 1)
+        {
+            return DRAW;
+        }
 
-    // check for max depth
-    if (depth <= 0)
-    {
-        return quiesce(board, alpha, beta);
+        // mate distance pruning
+        alpha = std::max(alpha, -MATE + ply);
+        beta = std::min(beta, MATE - ply);
+        if (alpha >= beta)
+        {
+            return alpha;
+        } 
     }
 
     // transposition table lookup
@@ -632,21 +629,5 @@ Move AI::getBestMove(Board& board, TranspositionTable* transpositionTable_, bool
 
     // return best move
     return bestMove;
-}
-
-// method for determining repetition
-bool isRepetition(Board& board)
-{
-    int count = 0;
-
-    for (int i = 0; i < board.getHistoryIndex(); i++)
-    {
-        if (board.getHistoryHash(i) == board.getCurrentHash())
-        {
-            count++;
-        }
-    }
-
-    return count > 2;
 }
 
