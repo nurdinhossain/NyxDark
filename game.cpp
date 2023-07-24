@@ -997,9 +997,9 @@ void Board::togglePiece(Color color, Piece piece, Square square)
     currentHash ^= ZOBRIST_PIECES[color][piece-1][square];
 
     // update pawn hash
-    if (piece == Piece::PAWN || piece == Piece::KING) {
+    /*if (piece == Piece::PAWN || piece == Piece::KING) {
         pawnHash ^= ZOBRIST_PIECES[color][piece-1][square];
-    }
+    }*/
 }
 
 void Board::makeQuietMove(Square from, Square to)
