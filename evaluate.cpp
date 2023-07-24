@@ -27,7 +27,7 @@ int lazyEvaluate(Board& board)
 }
 
 // eval function
-int evaluate(Board& board, PawnTable* pawnTable)
+int evaluate(Board& board)
 {
     int phase = board.getPhase();
 
@@ -82,31 +82,12 @@ int evaluate(Board& board, PawnTable* pawnTable)
 
     // pawn score
     UInt64 whitePawnAttacks = 0ULL, blackPawnAttacks = 0ULL;
-    
-    // check pawn table for pawn score
-    PawnEntry* entry = pawnTable->probe(board.getPawnHash());
-    if (entry->key == board.getPawnHash())
-    {
-        openingScore += entry->openingScore;
-        endgameScore += entry->endgameScore;
-        whitePawnAttacks = entry->whiteAttacks;
-        blackPawnAttacks = entry->blackAttacks;
-    }
-    else
-    {
-        int whiteOpeningPawnScore = 0, whiteEndgamePawnScore = 0;
-        int blackOpeningPawnScore = 0, blackEndgamePawnScore = 0;
-        pawnScore(board, WHITE, whitePawnAttacks, whiteOpeningPawnScore, whiteEndgamePawnScore);
-        pawnScore(board, BLACK, blackPawnAttacks, blackOpeningPawnScore, blackEndgamePawnScore);
-
-        // store pawn score in pawn table
-        int openingScoreContrib = whiteOpeningPawnScore - blackOpeningPawnScore;
-        int endgameScoreContrib = whiteEndgamePawnScore - blackEndgamePawnScore;
-        pawnTable->store(board.getPawnHash(), whitePawnAttacks, blackPawnAttacks, openingScoreContrib, endgameScoreContrib);
-
-        openingScore += openingScoreContrib;
-        endgameScore += endgameScoreContrib;
-    }
+    int whiteOpeningPawnScore = 0, whiteEndgamePawnScore = 0;
+    int blackOpeningPawnScore = 0, blackEndgamePawnScore = 0;
+    pawnScore(board, WHITE, whitePawnAttacks, whiteOpeningPawnScore, whiteEndgamePawnScore);
+    pawnScore(board, BLACK, blackPawnAttacks, blackOpeningPawnScore, blackEndgamePawnScore);
+    openingScore += whiteOpeningPawnScore - blackOpeningPawnScore;
+    endgameScore += whiteEndgamePawnScore - blackEndgamePawnScore;
 
     // knight score
     openingScore += knightScore(board, WHITE, blackPawnAttacks, whiteAttackUnits, blackSafetyArea) - knightScore(board, BLACK, whitePawnAttacks, blackAttackUnits, whiteSafetyArea);

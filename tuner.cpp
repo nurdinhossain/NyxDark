@@ -189,6 +189,8 @@ void pso(string filename, float k, int num_particles, double inertia, double cog
     particles[randomIndex].evaluate(lines, results, k, locked);
     global_best_position = particles[randomIndex].getBestPosition();
     global_best_mse = particles[randomIndex].getBestMSE();
+    
+    std::cout << "Global best mse: " << global_best_mse << endl;
 
     // update all particles velocities and positions
     for (int i = 0; i < particles.size(); i++)

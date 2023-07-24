@@ -18,7 +18,7 @@ constexpr UInt64 SQUARES_BELOW_BLACK_PAWNS[8] = {
 int lazyEvaluate(Board& board);
 
 // full eval function
-int evaluate(Board& board, PawnTable* pawnTable);
+int evaluate(Board& board);
 
 // bishop stuff
 bool hasBishopPair(Board& board, Color color);

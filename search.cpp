@@ -201,7 +201,7 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
     if (!friendlyKingInCheck && !pvNode && extensions == 0)
     {
         // reliable eval score
-        int reliableEval = evaluate(board, pawnTable_);
+        int reliableEval = evaluate(board);
 
         // razoring
         if (razorOk(board, depth, alpha))
@@ -440,7 +440,7 @@ int AI::quiesce(Board& board, int alpha, int beta)
     searchStats_.qNodes++;
 
     // evaluate board
-    int score = evaluate(board, pawnTable_);
+    int score = evaluate(board);
 
     // check for cutoff
     if (score >= beta)

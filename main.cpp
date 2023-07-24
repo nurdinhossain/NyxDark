@@ -27,8 +27,8 @@ int main()
 	processRookAttacks("rookAttackTable.txt");
 
 	// load parameters
-	loadParameters("best_parameters.txt");
 	srand(time(NULL));
+	loadParameters("best_parameters.txt");
 
 	// load book
 
@@ -48,8 +48,10 @@ int main()
 	// convert bookFens into a map
 	unordered_map<string, vector<string>> bookMap = fenMovesToMap(bookFens);
 
-	//while (true)
-	//	pso("positions.txt", 0.5, 100, 0.8, 0.1, 0.1, 1);
+	/*while (true) {
+		loadParameters("best_parameters.txt");
+		pso("positions.txt", 0.5, 50, 0.8, 0.1, 0.1, 1);
+	}*/
 
 	uci(bookMap);
 
