@@ -1,4 +1,4 @@
-# Nyx-CPP
+# NyxDark
 UCI-compatible chess engine built from scratch in C++
 
 Search Techniques:
@@ -17,6 +17,7 @@ Search Techniques:
 - Multi-Cut Pruning
 - Late Move Reductions
 - Opening Book
+- LazySMP Multi-Threading
 
 Move Ordering Techniques:
 - Most Valuable Victim/Least Valuable Attacker (MVV-LVA)
