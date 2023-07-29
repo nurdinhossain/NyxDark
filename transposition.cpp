@@ -54,12 +54,48 @@ void TranspositionTable::clear()
     // clear the table
     for (int i = 0; i < size_; i++)
     {
-        table_[i].key = 0ULL;
-        table_[i].move = {QUIET, NONE, NONE};
-        table_[i].score = 0;
-        table_[i].depth = 0;
-        table_[i].flag = NO_FLAG;
+        table_[i].smpKey = 0;
+        table_[i].data = 0;
     }
+}
+
+int TranspositionTable::getDepth(UInt64 data)
+{
+    // get the depth
+    int depth = (data >> 47) & 0x3F;
+
+    // return the depth
+    return depth;
+}
+int TranspositionTable::getScore(UInt64 data)
+{
+    // get the score
+    int score = (data >> 29) & 0x3FFFF;
+
+    // return the score
+    return score;
+}
+Flag TranspositionTable::getFlag(UInt64 data)
+{
+    // get the flag
+    Flag flag = static_cast<Flag>(data >> 53);
+
+    // return the flag
+    return flag;
+}
+Move TranspositionTable::getMove(UInt64 data)
+{
+    // extract move from data
+    Square to = static_cast<Square>(data & 0x3F);
+    Square from = static_cast<Square>((data >> 6) & 0x3F);
+    MoveType type = static_cast<MoveType>((data >> 12) & 0xF);
+    Piece pieceTaken = static_cast<Piece>((data >> 16) & 0x7);
+    int oldCastle = (data >> 19) & 0xF;
+    Square oldEnPassant = static_cast<Square>((data >> 23) & 0x3F);
+    Move move = {type, from, to, pieceTaken, oldCastle, oldEnPassant};
+
+    // return the move
+    return move;
 }
 
 int TranspositionTable::correctScoreStore(int score, int ply)
@@ -106,11 +142,38 @@ Entry* TranspositionTable::probe(UInt64 key)
 
 void TranspositionTable::store(UInt64 key, Flag flag, int depth, int ply, int score, Move move)
 {
+    // store the data in a thread-safe manner
+    UInt64 smpKey = key;
+    UInt64 data = 0ULL;
+    int correctScore = correctScoreStore(score, ply);
+
+    // first hash move
+    Square from = move.from, to = move.to;
+    MoveType type = move.type;
+    Piece pieceTaken = move.pieceTaken;
+    int oldCastle = move.oldCastle;
+    Square enPassant = move.oldEnPassant;
+    data ^= to; 
+    data ^= ((UInt64)from << 6); // to is 6 bits
+    data ^= ((UInt64)type << 12); // from is 6 bits
+    data ^= ((UInt64)pieceTaken << 16); // type is 4 bits
+    data ^= ((UInt64)oldCastle << 19); // pieceTaken is 3 bits
+    data ^= ((UInt64)enPassant << 23); // oldCastle is 4 bits
+
+    // then hash score
+    data ^= ((UInt64)(correctScore + POS_INF) << 29); // offset by POS_INF to avoid negative numbers
+
+    // then hash depth
+    data ^= ((UInt64)depth << 47);
+
+    // then hash flag
+    data ^= ((UInt64)flag << 53);
+
+    // xor the data with the key
+    smpKey ^= data;
+
     // store the data
     Entry* entry = probe(key);
-    entry->key = key;
-    entry->flag = flag;
-    entry->depth = depth;
-    entry->score = correctScoreStore(score, ply);
-    entry->move = move;
+    entry->smpKey = smpKey;
+    entry->data = data;
 }

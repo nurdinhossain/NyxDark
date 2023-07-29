@@ -213,6 +213,13 @@ bool nullOk(Board& board, int depth)
         return false;
     }
 
+    // if side to move only has pawns and king, return false
+    Color side = board.getNextMove();
+    if (board.getOccupied(side) == (board.getPiece(side, PAWN) | board.getPiece(side, KING)))
+    {
+        return false;
+    }
+
     return true;
 }
 

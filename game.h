@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <string>
-#include <unordered_map>
+#include "hashtable.h"
 using UInt64 = unsigned long long;
 
 enum Color
@@ -90,6 +90,7 @@ struct Move
 
 constexpr UInt64 FILLED_BOARD = 0xFFFFFFFFFFFFFFFFULL;
 constexpr int PIECE_VALUES[5] = {100, 310, 320, 500, 900};
+extern int HISTORY_SIZE;
 
 Color extractColor(int);
 Piece extractPiece(int);
@@ -183,7 +184,7 @@ class Board
         // hashing
         UInt64 currentHash = 0; // current hash
         UInt64 pawnHash = 0; // hash for pawns
-        std::unordered_map<UInt64, int> history = {}; // history of hashes
+        HashTable history = HashTable(HISTORY_SIZE); // history table for storing positions
 
         // for generating legal moves
         Square kingIndices[2] = {NONE, NONE}; // 2 colors

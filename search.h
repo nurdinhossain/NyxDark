@@ -12,6 +12,7 @@ const int MAX_MOVES_ATTACK = 64;
 extern int MAX_TIME;
 const int TIME_INCREASE = 1000;
 const int KILLER_MAX_PLY = 64;
+const int THREADS = 0;
 
 // aspiration window    
 const int ASPIRATION_WINDOW[6] = { 50, 300, 600, 100000 };
@@ -67,8 +68,8 @@ class AI
         ~AI();
 
         // search methods
-        int search(Board& board, TranspositionTable* transpositionTable_, int depth, int ply, int alpha, int beta, std::chrono::steady_clock::time_point start, bool& abort);
-        Move getBestMove(Board& board, TranspositionTable* transpositionTable_, bool verbose);
+        int search(Board& board, TranspositionTable* transpositionTable_, int depth, int ply, int alpha, int beta, std::chrono::steady_clock::time_point start, bool& abort, bool isMain);
+        Move getBestMove(Board& board, TranspositionTable* transpositionTable_, int startDepth, int increment, bool verbose);
         int quiesce(Board& board, int alpha, int beta);
 
         // history table methods
@@ -83,3 +84,6 @@ class AI
         Move excludedMove_ = {QUIET, NONE, NONE};
         SearchStats searchStats_;
 };
+
+// threaded search method
+Move threadedSearch(AI& master, Board& board, TranspositionTable* transpositionTable_);

@@ -221,10 +221,12 @@ void uci(unordered_map<string, vector<string>> book)
             // set max time
             if (board->getNextMove() == WHITE)
             {
-                if (wtime != -1)
-                    MAX_TIME = getTime(wtime, winc, moveNumber);
-                else if (btime != -1)
-                    MAX_TIME = getTime(btime, binc, moveNumber);
+                if (wtime != -1) {
+                    if (movestogo != -1)
+                        MAX_TIME = wtime / movestogo;
+                    else
+                        MAX_TIME = getTime(wtime, winc, moveNumber);
+                }
                 else if (movetime != -1)
                     MAX_TIME = movetime;
                 else if (infinite)
@@ -233,24 +235,25 @@ void uci(unordered_map<string, vector<string>> book)
             else
             {
                 if (btime != -1)
-                    MAX_TIME = getTime(btime, binc, moveNumber);
-                else if (wtime != -1)
-                    MAX_TIME = getTime(wtime, winc, moveNumber);
+                    if (movestogo != -1)
+                        MAX_TIME = btime / movestogo;
+                    else
+                        MAX_TIME = getTime(btime, binc, moveNumber);
                 else if (movetime != -1)
                     MAX_TIME = movetime;
                 else if (infinite)
                     MAX_TIME = 1000000000;
             }
 
-            Move bestMove = master->getBestMove(*board, tt, true);
+            Move bestMove = threadedSearch(*master, *board, tt);
 
             // print best move in uci format
-            std::string stringMove = indexToSquare(bestMove.from) + indexToSquare(bestMove.to);
+            /*std::string stringMove = indexToSquare(bestMove.from) + indexToSquare(bestMove.to);
             if (bestMove.type == KNIGHT_PROMOTION || bestMove.type == KNIGHT_PROMOTION_CAPTURE) stringMove += "n";
             else if (bestMove.type == BISHOP_PROMOTION || bestMove.type == BISHOP_PROMOTION_CAPTURE) stringMove += "b";
             else if (bestMove.type == ROOK_PROMOTION || bestMove.type == ROOK_PROMOTION_CAPTURE) stringMove += "r";
             else if (bestMove.type == QUEEN_PROMOTION || bestMove.type == QUEEN_PROMOTION_CAPTURE) stringMove += "q";
-            std::cout << "bestmove " << stringMove << std::endl;
+            std::cout << "bestmove " << stringMove << std::endl;*/
         }
     };
 

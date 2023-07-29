@@ -166,7 +166,7 @@ Board::Board(std::string fen)
     zobristHash();
 
     // add to history
-    history[currentHash]++;
+    history.store(currentHash, 1);
 }
 
 Board::~Board()
@@ -204,9 +204,7 @@ Board* Board::clone() const
     clone->currentHash = currentHash;
 
     // clone history
-    for (auto it = history.begin(); it != history.end(); it++) {
-        clone->history[it->first] = it->second;
-    }
+    clone->history = history.clone();
 
     clone->pinnedPiecesMG = pinnedPiecesMG;
     clone->checkers = checkers;
@@ -420,7 +418,9 @@ UInt64 Board::getCurrentHash() const
 
 int Board::getHashCount(UInt64 index)
 {
-    return history[index];
+    int value;
+    if (history.lookup(index, value)) return value;
+    return 0;
 }
 
 int Board::getPieceCount(Color color, Piece piece) const
@@ -1138,8 +1138,10 @@ void Board::makeMove(Move &move)
     if (enPassant != Square::NONE) currentHash ^= ZOBRIST_EN_PASSANT[enPassant % 8];
     currentHash ^= ZOBRIST_SIDE;
 
-    // update history hash unordered map
-    history[currentHash]++;
+    // update history hash
+    int value;
+    if (history.lookup(currentHash, value)) history.store(currentHash, value + 1);
+    else history.store(currentHash, 1);
 }
 
 void Board::unmakeMove(Move &move)
@@ -1154,8 +1156,11 @@ void Board::unmakeMove(Move &move)
     Color color = static_cast<Color>(Color::BLACK - nextMove);
 
     // if position is new, remove it from history, otherwise decrement the count
-    if (history[currentHash] == 1) history.erase(currentHash);
-    else history[currentHash]--;
+    int value;
+    if (history.lookup(currentHash, value)) {
+        if (value == 1) history.remove(currentHash);
+        else history.store(currentHash, value - 1);
+    }
     
     // undo old zobrists
     currentHash ^= ZOBRIST_CASTLE[castlingRights];
