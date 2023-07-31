@@ -24,7 +24,7 @@ Move Ordering Techniques:
 - Killer Moves
 - History Heuristic
 
-The above techniques were chosen at the recommendation of the Chess Programming Wiki - https://www.chessprogramming.org/
+The above techniques were chosen at the recommendation of the Chess Programming Wiki (https://www.chessprogramming.org/) and tested with the Cute Chess Cli.
 
 Eval Function:
 - Piece-Square Tables

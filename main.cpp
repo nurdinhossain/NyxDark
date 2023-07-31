@@ -37,7 +37,7 @@ int main()
 	// load book
 
 	// process pgn file
-	vector<vector<string>> games = processPGN("book_games.pgn", 5000);
+	vector<vector<string>> games = processPGN("book_games2.txt", 5000);
 
 	// process games into fen strings and put into one large vector
 	vector<string> bookFens;
