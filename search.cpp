@@ -306,7 +306,7 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
         }
 
         // singular extension search
-        bool singularExtension = false;
+        int otherExtensions = 0;
         if (ply > 0 && depth >= (4 + 2 * pvNode) && (moves[i].from == ttMove.from && moves[i].to == ttMove.to && moves[i].type == ttMove.type) && excludedMove_.from == NONE)
         {
             if (ttScore != FAIL_SCORE)
@@ -321,8 +321,7 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
                     // singular extension
                     if (score < ttScore)
                     {
-                        extensions++;
-                        singularExtension = true;
+                        otherExtensions++;
                         searchStats_.singularExtensions++;
                     }
 
@@ -336,6 +335,9 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
             }
         }
 
+        // update pruningOk
+        pruningOk &= (otherExtensions == 0);
+
         // make move
         board.makeMove(moves[i]);
 
@@ -343,7 +345,7 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
         int score;
         if (i == 0)
         {
-            score = -search(board, transpositionTable_, depth - 1 + extensions, ply + 1, -beta, -alpha, start, abort, isMain);
+            score = -search(board, transpositionTable_, depth - 1 + extensions + otherExtensions, ply + 1, -beta, -alpha, start, abort, isMain);
         }
         else
         {
@@ -352,19 +354,19 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
             if (lmrValid(board, moves[i], i, depth) && pruningOk) reduction = lmrReduction(i, depth);
 
             // get score
-            score = -search(board, transpositionTable_, depth - 1 - reduction + extensions, ply + 1, -alpha - 1, -alpha, start, abort, isMain);
+            score = -search(board, transpositionTable_, depth - 1 - reduction + extensions + otherExtensions, ply + 1, -alpha - 1, -alpha, start, abort, isMain);
             searchStats_.lmrReductions++;
 
             // re-search if necessary
             if (score > alpha && reduction > 0)
             {
-                score = -search(board, transpositionTable_, depth - 1 + extensions, ply + 1, -beta, -alpha, start, abort, isMain);
+                score = -search(board, transpositionTable_, depth - 1 + extensions + otherExtensions, ply + 1, -beta, -alpha, start, abort, isMain);
                 searchStats_.lmrReductions--;
                 searchStats_.reSearches++;
             }
             else if (score > alpha && score < beta)
             {
-                score = -search(board, transpositionTable_, depth - 1 + extensions, ply + 1, -beta, -alpha, start, abort, isMain);
+                score = -search(board, transpositionTable_, depth - 1 + extensions + otherExtensions, ply + 1, -beta, -alpha, start, abort, isMain);
                 searchStats_.reSearches++;
             }
         }
@@ -415,12 +417,6 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
             alpha = score;
             flag = EXACT;
             bestMove = moves[i];
-        }
-
-        // if singular extension, decrement extensions
-        if (singularExtension)
-        {
-            extensions--;
         }
     }
 

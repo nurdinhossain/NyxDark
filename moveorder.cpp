@@ -53,27 +53,23 @@ void scoreMoves(Board& board, Move ttMove, Move killerMoves[][2], Move moves[], 
             continue;
         }
 
-        // check for pawn near promotion
+        // check for passed pawns
         if (board.getSquareToPiece(move.from) == PAWN)
         {
             Color color = board.getNextMove();
-            int rank = move.from / 8;
-            if (color == WHITE && rank > 4 || color == BLACK && rank < 3)
+            if (isPassed(board, color, move.from)) 
             {
-                moves[i].score = PAWN_NEAR_PROMO_OFFSET;
-
-                // reward passed pawns
-                if (isPassed(board, color, move.from)) 
+                moves[i].score = PASSED_PAWN_OFFSET;
+                
+                // reward pawns for how high they are
+                int rank = move.from / 8;
+                if (color == WHITE)
                 {
-                    moves[i].score += 1;
-                    
-                    // reward unstoppable pawns
-                    if (!isObstructed(board, color, move.from))
-                    {
-                        moves[i].score += 1;
-                        if (isUnstoppable(board, color, move.from))
-                            moves[i].score += 1; 
-                    }
+                    moves[i].score += rank;
+                }
+                else
+                {
+                    moves[i].score += 7 - rank;
                 }
 
                 continue;

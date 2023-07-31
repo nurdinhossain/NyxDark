@@ -22,7 +22,8 @@ enum Stage
 {
     HASH_MOVES,
     LOUD_MOVES,
-    QUIET_MOVES
+    QUIET_MOVES,
+    END
 };
 
 // struct for gathering statistics about the search

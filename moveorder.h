@@ -15,7 +15,7 @@ const int MVV_LVA[6][6] =
 const int TT_MOVE = 9999999;
 const int PROMO_OFFSET = 999999;
 const int CAPTURE_OFFSET = 99999;
-const int PAWN_NEAR_PROMO_OFFSET = 9999;
+const int PASSED_PAWN_OFFSET = 9999;
 const int KILLER_OFFSET = 999;
 const int HISTORY_MULTIPLIER = 10;
 
