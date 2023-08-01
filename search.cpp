@@ -493,11 +493,11 @@ int AI::quiesce(Board& board, int alpha, int beta)
             }
 
             // futility pruning
-            if (score + seeScore + FUTILE_MARGIN_Q < alpha)
+            /*if (score + seeScore + FUTILE_MARGIN_Q < alpha)
             {
                 searchStats_.futileReductionsQ++;
                 continue;
-            }
+            }*/
         }
 
         // make move
