@@ -282,10 +282,10 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
     for (int i = 0; i < numMoves; i++)
     {
         // continue if excluded move
-        if (moves[i].from == excludedMove_.from && moves[i].to == excludedMove_.to && moves[i].type == excludedMove_.type)
+        /*if (moves[i].from == excludedMove_.from && moves[i].to == excludedMove_.to && moves[i].type == excludedMove_.type)
         {
             continue;
-        }
+        }*/
 
         // see if move causes check
         bool causesCheck = moveCausesCheck(board, moves[i]);
@@ -305,9 +305,9 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
             continue;
         }
 
-        // singular extension search
+        // singular extension search (failed)
         int otherExtensions = 0;
-        if (ply > 0 && depth >= (4 + 2 * pvNode) && (moves[i].from == ttMove.from && moves[i].to == ttMove.to && moves[i].type == ttMove.type) && excludedMove_.from == NONE)
+        /*if (ply > 0 && depth >= (4 + 2 * pvNode) && (moves[i].from == ttMove.from && moves[i].to == ttMove.to && moves[i].type == ttMove.type) && excludedMove_.from == NONE)
         {
             if (ttScore != FAIL_SCORE)
             {
@@ -333,7 +333,7 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
                     }
                 }
             }
-        }
+        }*/
 
         // update pruningOk
         pruningOk &= (otherExtensions == 0);
@@ -635,10 +635,10 @@ Move AI::getBestMove(Board& board, TranspositionTable* transpositionTable_, int 
         }
 
         // check for mate
-        /*if (bestScore >= MATE - MAX_DEPTH || bestScore <= -MATE + MAX_DEPTH)
+        if (bestScore >= MATE - MAX_DEPTH || bestScore <= -MATE + MAX_DEPTH)
         {
             break;
-        }*/
+        }
 
         // increment depth
         depth += increment;
