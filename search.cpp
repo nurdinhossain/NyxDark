@@ -1,7 +1,6 @@
 #include <iostream>
 #include <chrono>
 #include <cmath>
-#include "client.h"
 #include "search.h"
 #include "evaluate.h"
 #include "moveorder.h"
