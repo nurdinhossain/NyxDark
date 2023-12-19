@@ -9,7 +9,7 @@ public:
     bool lookup(UInt64 hash, int& value) const;
     void remove(UInt64 hash);
     void clear() { for (int i = 0; i < size; i++) { table[i].hash = 0; table[i].value = 0; } }
-    HashTable clone() const;
+    HashTable* clone() const;
 private:
     struct Entry {
         UInt64 hash;

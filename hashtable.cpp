@@ -82,15 +82,15 @@ void HashTable::remove(UInt64 hash)
     }
 }
 
-HashTable HashTable::clone() const
+HashTable* HashTable::clone() const
 {
-    HashTable newTable(size * sizeof(Entry) / 1024 / 1024);
+    HashTable* newTable = new HashTable(size * sizeof(Entry) / 1024 / 1024);
     for (int i = 0; i < size; i++)
     {
         const Entry& entry = table[i];
         if (entry.hash != 0)
         {
-            newTable.store(entry.hash, entry.value);
+            newTable->store(entry.hash, entry.value);
         }
     }
     return newTable;

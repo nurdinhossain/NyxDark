@@ -53,6 +53,21 @@ void scoreMoves(Board& board, Move ttMove, Move killerMoves[][2], Move moves[], 
             continue;
         }
 
+        // check for killer move
+        if (ply >= 0)
+            {
+            if (move.from == killerMoves[ply][0].from && move.to == killerMoves[ply][0].to && move.type == killerMoves[ply][0].type)
+            {
+                moves[i].score = KILLER_OFFSET;
+                continue;
+            }
+            else if (move.from == killerMoves[ply][1].from && move.to == killerMoves[ply][1].to && move.type == killerMoves[ply][1].type)
+            {
+                moves[i].score = KILLER_OFFSET - 1;
+                continue;
+            }
+        }
+
         // check for passed pawns
         if (board.getSquareToPiece(move.from) == PAWN)
         {
@@ -72,21 +87,6 @@ void scoreMoves(Board& board, Move ttMove, Move killerMoves[][2], Move moves[], 
                     moves[i].score += 7 - rank;
                 }
 
-                continue;
-            }
-        }
-
-        // check for killer move
-        if (ply >= 0)
-            {
-            if (move.from == killerMoves[ply][0].from && move.to == killerMoves[ply][0].to && move.type == killerMoves[ply][0].type)
-            {
-                moves[i].score = KILLER_OFFSET;
-                continue;
-            }
-            else if (move.from == killerMoves[ply][1].from && move.to == killerMoves[ply][1].to && move.type == killerMoves[ply][1].type)
-            {
-                moves[i].score = KILLER_OFFSET - 1;
                 continue;
             }
         }

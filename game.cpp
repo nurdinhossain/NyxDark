@@ -204,7 +204,7 @@ Board* Board::clone() const
     clone->currentHash = currentHash;
 
     // clone history
-    clone->history = history.clone();
+    clone->history = *(history.clone());
 
     clone->pinnedPiecesMG = pinnedPiecesMG;
     clone->checkers = checkers;
