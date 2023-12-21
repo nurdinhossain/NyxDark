@@ -126,7 +126,7 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
     UInt64 smpKey = ttEntry->smpKey, data = ttEntry->data;
     int ttScore = FAIL_SCORE, ttDepth = 0;
     Flag ttFlag = NO_FLAG;
-    Move ttMove = {BISHOP_PROMOTION_CAPTURE};
+    Move ttMove = {BISHOP_PROMOTION_CAPTURE, NONE, NONE};
 
     if ((smpKey ^ data) == board.getCurrentHash())
     {
@@ -276,6 +276,10 @@ int AI::search(Board& board, TranspositionTable* transpositionTable_, int depth,
     // initialize transposition flag and best move
     Flag flag = UPPER_BOUND;
     Move bestMove = moves[0];
+    if (ttMove.from != NONE)
+    {
+        bestMove = ttMove;
+    }
 
     // loop through moves
     for (int i = 0; i < numMoves; i++)
